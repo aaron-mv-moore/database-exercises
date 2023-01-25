@@ -1,0 +1,1 @@
+This repository is for completing exercises related to the SQL Module from Codeup Academy's Data Science course. If there are any questions or comments please le me know!
