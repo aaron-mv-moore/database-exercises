@@ -12,7 +12,7 @@ SELECT count(*) FROM employees WHERE first_name = 'Irena' OR first_name = 'Vidya
 
 -- Find all current or previous employees with first names 'Irena', 'Vidya', or 'Maya', using OR, and who is male. Enter a comment with the number of records returned.
 -- A: 441
-SELECT count(*) FROM employees WHERE first_name IN ('Irena', 'Vidya', 'Maya') AND gender = 'M';
+SELECT count(*) FROM employees WHERE (first_name = 'Irena' OR first_name = 'Vidya' OR first_name = 'Maya') AND gender = 'M';
 
 -- Find all current or previous employees whose last name starts with 'E'. Enter a comment with the number of employees whose last name starts with E.
 -- A: 7330
@@ -24,15 +24,15 @@ SELECT count(*) FROM employees WHERE last_name LIKE 'E%' OR last_name LIKE '%e';
 
 -- How many employees have a last name that ends with E, but does not start with E? 
 -- A: 23393
-SELECT count(*) FROM employees WHERE last_name LIKE '%e' AND last_name NOT LIKE 'E%'; 
+SELECT count(*) FROM employees WHERE (last_name LIKE '%e') AND (last_name NOT LIKE 'E%'); 
 
 -- Find all current or previous employees employees whose last name starts and ends with 'E'. Enter a comment with the number of employees whose last name starts and ends with E. 
--- A:8 99
+-- A: 899
 SELECT count(*) FROM employees WHERE last_name LIKE 'E%' AND last_name LIKE '%e';
 
 -- How many employees' last names end with E, regardless of whether they start with E?
 -- A: 24292
-SELECT count(*) FROM employees WHERE Last_name LIKE '%e';
+SELECT count(*) FROM employees WHERE last_name LIKE '%e';
 
 -- Find all current or previous employees hired in the 90s. Enter a comment with the number of employees returned.
 -- A: 135214
@@ -55,4 +55,3 @@ SELECT count(*) FROM employees WHERE last_name LIKE '%q%';
 -- A: 547
 SELECT count(*) FROM employees WHERE last_name LIKE '%q%' AND last_name NOT LIKE '%qu%';
 
-SELECT * FROM employees LIMIT 10;
