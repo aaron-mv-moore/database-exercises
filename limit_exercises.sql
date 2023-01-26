@@ -1,31 +1,63 @@
+-- ORDER BY exercises
 USE employees;
 
--- List the first 10 distinct last name sorted in descending order.
-SELECT DISTINCT last_name
-FROM employees
-ORDER BY last_name DESC
-LIMIT 10;
-
--- Find all previous or current employees hired in the 90s and born on Christmas
+-- 2 Find all employees with first names 'Irena', 'Vidya', or 'Maya', and order your results returned by first name. 
+-- What was the first and last name in the first row of the results? 
+	-- A: Irena Reutenauer
+-- What was the first and last name of the last person in the table.
+	-- A: Vidya Simmen
 SELECT *
 FROM employees
-WHERE hire_date LIKE '199%'
-	AND birth_date LIKE '%12-25';
-	
--- Find the first 5 employees hired in the 90's by sorting by hire date and limiting your results to the first 5 records.
+WHERE first_name IN ('Irena', 'Vidya', 'Maya')
+ORDER BY `first_name`;
+
+-- 3 Find all employees with first names 'Irena', 'Vidya', or 'Maya', and order your results returned by first name and then last name. In your comments, answer: 
+-- What was the first and last name in the first row of the results? 
+	-- A: Irena Acton
+-- What was the first and last name of the last person in the table?
+	-- A: Vidya Zweizig
 SELECT *
 FROM employees
-WHERE hire_date LIKE '199%'
-	AND birth_date LIKE '%12-25'
-ORDER BY hire_date
-LIMIT 5;
+WHERE first_name IN ('Irena', 'Vidya', 'Maya')
+ORDER BY `first_name`, last_name;
 
--- Update the query to find the tenth page (1 page = 5 results) of results.
+-- 4 Find all employees with first names 'Irena', 'Vidya', or 'Maya', and order your results returned by last name and then first name. In your comments, answer: 
+-- What was the first and last name in the first row of the results?
+	-- A:  Irena Acton
+-- What was the first and last name of the last person in the table?
+	-- A: Maya Zyda
 SELECT *
 FROM employees
-WHERE hire_date LIKE '199%'
-	AND birth_date LIKE '%12-25'
-ORDER BY hire_date
-LIMIT 5 OFFSET 50;
+WHERE first_name IN ('Irena', 'Vidya', 'Maya')
+ORDER BY last_name, first_name;
 
--- OFFSET allows us to skip tp the page number we would like to begin on. The LIMIT will begin its count on the item directly after the OFFSET.
+-- 5 Write a query to to find all employees whose last name starts and ends with 'E'. Sort the results by their employee number. 
+	-- the number of employees returned
+	-- the first employee number and their first and last name,
+	-- last employee number with their first and last name.
+		-- A: 899; 10021 Ramzi Erde; 499648	Tadahiro	Erde
+SELECT emp_no, first_name, last_name
+FROM employees
+WHERE last_name LIKE 'E%e' 
+ORDER BY emp_no;
+
+-- 6 Sort the results by their hire date, so that the newest employees are listed first.
+	-- the number of employees returned
+	-- the name of the newest employee
+	-- the name of the oldest employee.
+		-- A: 899; NEWEST: Teiji Eldridge; OLDEST: Sergi Erde
+SELECT emp_no, first_name, last_name, hire_date
+FROM employees
+WHERE last_name LIKE 'E%e' 
+ORDER BY hire_date DESC;
+
+-- 7 Find all employees hired in the 90s and born on Christmas. Sort the results so that the oldest employee who was hired last is the first result. 
+	-- the number of employees returned
+	-- the name of the oldest employee who was hired last
+	-- the name of the youngest employee who was hired first.
+		-- A: 33936; Oldest Last Hire: Gudjon Vakili; Youngest Early Hire: Tremaine Eugenio
+SELECT first_name, last_name
+FROM employees
+WHERE birth_date LIKE '%12-25'
+AND hire_date LIKE '199%'
+ORDER BY birth_date DESC, hire_date DESC;
