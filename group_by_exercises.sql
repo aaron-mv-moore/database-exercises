@@ -54,12 +54,13 @@ LIMIT 10
 	
 -- Using your query that generates a username for all of the employees, generate a count employees for each unique username.
 	SELECT 
-	lower(
-	concat(
-	substr(first_name, 1, 1), 
-	substr(last_name, 1, 4), '_',
-	lpad(MONTH(birth_date), 2, 0),  
-	substr(YEAR(birth_date), -2))) AS username, COUNT(*)
+		lower(
+		concat(
+		substr(first_name, 1, 1), 
+		substr(last_name, 1, 4), '_',
+		lpad(MONTH(birth_date), 2, 0),  
+		substr(YEAR(birth_date), -2))) AS username, 
+		COUNT(*)
 	FROM employees
 	GROUP BY username
 	;
@@ -80,7 +81,8 @@ LIMIT 10
 
 -- Bonus: How many duplicate usernames are there from your previous query?
 	-- 13251
- 	SELECT 
+ 	SELECT COUNT(d.username)
+ 	FROM (SELECT 
 		lower(
 		concat(
 		substr(first_name, 1, 1), 
@@ -89,8 +91,7 @@ LIMIT 10
 		substr(YEAR(birth_date), -2))) AS username, COUNT(*) as count
 	FROM employees
 	GROUP BY username
-	HAVING count > 1
-	ORDER BY COUNT(*) DESC
+	HAVING count > 1) AS d
 	;	
 
 
