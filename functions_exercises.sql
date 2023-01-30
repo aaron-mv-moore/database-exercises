@@ -153,7 +153,7 @@ ORDER BY hire_date DESC;
 	lower(
 	concat(
 	substr(first_name, 1, 1), 
-	substr(last_name, 4), '_',
+	substr(last_name, 1, 4), '_',
 	lpad(MONTH(birth_date), 2, 0), -- substr(birth_date,6, 2),  
 	substr(YEAR(birth_date), -2))) AS username,
 	 first_name, last_name, birth_date 
