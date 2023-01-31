@@ -55,11 +55,13 @@ LIMIT 10
 -- Using your query that generates a username for all of the employees, generate a count employees for each unique username.
 	SELECT 
 		lower(
-		concat(
-		substr(first_name, 1, 1), 
-		substr(last_name, 1, 4), '_',
-		lpad(MONTH(birth_date), 2, 0),  
-		substr(YEAR(birth_date), -2))) AS username, 
+			concat(
+				substr(first_name, 1, 1), 
+				substr(last_name, 1, 4),
+					'_',
+				lpad(MONTH(birth_date), 2, 0),  
+				substr(YEAR(birth_date), -2)))
+				AS username, 
 		COUNT(*)
 	FROM employees
 	GROUP BY username
@@ -69,11 +71,14 @@ LIMIT 10
 	-- A: There are many duplicate usernames. 6 Is the highest number of times a username shows up.
 	SELECT 
 		lower(
-		concat(
-		substr(first_name, 1, 1), 
-		substr(last_name, 1, 4), '_',
-		lpad(MONTH(birth_date), 2, 0),  
-		substr(YEAR(birth_date), -2))) AS username, COUNT(*)
+			concat(
+				substr(first_name, 1, 1), 
+				substr(last_name, 1, 4), 
+					'_',
+				lpad(MONTH(birth_date), 2, 0),  
+				substr(YEAR(birth_date), -2))) 
+				AS username, 
+			COUNT(*)
 	FROM employees
 	GROUP BY username
 	ORDER BY COUNT(*) DESC
