@@ -191,3 +191,88 @@ LEFT JOIN city c
 	ON a.city_id = c.city_id;
 	
 
+-- More Exercises Part 2: 1 - 19 --
+-- 1. Display the first and last names in all lowercase of all the actors.
+desc actor;
+SELECT lower(first_name),
+	lower(last_name)
+FROM actor;	
+		
+-- 2. You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe." What is one query would you could use to obtain this information?
+SELECT *
+FROM actor
+WHERE first_name = 'Joe';
+
+-- 3. Find all actors whose last name contain the letters "gen":
+SELECT *
+FROM actor
+WHERE last_name LIKE '%gen%';
+
+-- 4. Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
+SELECT *
+FROM actor
+WHERE last_name LIKE '%li%'
+ORDER BY last_name, first_name;
+
+-- 5. Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China:
+SELECT country_id,
+	country
+FROM country
+WHERE country IN ('Afghanistan', 'Bangladesh', 'China');
+
+-- 6. List the last names of all the actors, as well as how many actors have that last name.
+SELECT last_name,
+	COUNT(*)
+FROM actor
+GROUP BY last_name;
+
+-- 7. List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors
+SELECT last_name,
+	COUNT(*) as count
+FROM actor
+GROUP BY last_name
+HAVING count > 1;
+
+-- ?? 8. You cannot locate the schema of the address table. Which query would you use to re-create it?
+SHOW CREATE TABLE address;
+
+-- 9. Use JOIN to display the first and last names, as well as the address, of each staff member.
+SELECT s.first_name, 
+    s.last_name,
+	a.address
+FROM staff s LEFT JOIN address a
+	ON s.address_id = a.address_id;
+	
+-- 10.Use JOIN to display the total amount rung up by each staff member in August of 2005.
+DESC staff;
+DESC payment;
+SELECT s.staff_id,
+	s.first_name,
+	s.last_name,
+	SUM(p.amount) AS total_amount
+FROM staff s JOIN payment p
+	ON s.staff_id = p.staff_id
+WHERE DATE(payment_date) >= '2005-08-01'
+GROUP BY staff_id;
+
+-- 11. List each film and the number of actors who are listed for that film.
+DESC film; -- title, film_id
+DESC film_actor; -- sum(actor_id)
+SELECT f.title,
+	COUNT(fa.actor_id)
+FROM film f JOIN film_actor fa
+	ON f.film_id = fa.film_id
+GROUP BY f.title; 
+
+-- 12. How many copies of the film Hunchback Impossible exist in the inventory system?
+DESC film;
+DESC inventory;
+SELECT title,
+count(i.film_id)
+FROM inventory i JOIN film f
+	ON i.film_id = f.film_id
+WHERE title LIKE 'Hunchback%'
+GROUP BY f.title;
+
+-- 13. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
+
