@@ -87,11 +87,10 @@ SHOW TABLES;
 	FROM departments
 	JOIN dept_emp 
 		ON departments.dept_no = dept_emp.dept_no
-	JOIN employees
-		ON dept_emp.emp_no = employees.emp_no
 	JOIN titles
-		ON employees.emp_no = titles.emp_no
-	WHERE (titles.to_date > now())
+		ON dept_emp.emp_no = titles.emp_no
+	WHERE (dept_emp.to_date > now())
+		 AND (titles.to_date > now())
 		AND (departments.dept_name = 'Customer Service')
 	GROUP BY titles.title
 	;
@@ -252,17 +251,25 @@ SHOW TABLES;
 	; 
 	
 /* Bonus Who is the highest paid employee within each department. */
-
-	/* SELECT first_name,
-		max(salary)
+USE employees;	
+	SELECT dept_name,
+		max(salary) as high_salary
 	FROM salaries s
-	Right JOIN employees e
+	JOIN employees e
 		ON s.emp_no = e.emp_no
 	JOIN dept_emp de
 		ON e.emp_no = de.emp_no
 	JOIN departments d
 		ON de.dept_no = d.dept_no
-	WHERE s.to_date > now()
-		AND de.to_date > now()
-		GROUP BY dept_name
-		 */
+	WHERE (s.to_date > now()
+		AND de.to_date > now())
+		GROUP BY dept_name;
+	
+	SELECT mds.dept_name, 
+		first_name,
+		last_name,
+		mds.high_salary
+	FROM max_dept_salary JOIN salaries
+		ON 
+		
+		 
