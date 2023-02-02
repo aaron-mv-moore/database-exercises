@@ -107,3 +107,45 @@ WHERE salary BETWEEN (
 				FROM salaries 
 				WHERE to_date > now()
 				));
+
+
+
+
+-- BONUS --
+-- 1. Find all the department names that currently have female managers.
+
+SELECT * FROM departments;
+
+SELECT dept_name
+FROM departments
+JOIN dept_manager
+	USING (dept_no)
+WHERE emp_no IN (SELECT emp_no
+		FROM employees
+		JOIN dept_manager
+			USING (emp_no)
+		JOIN departments
+			USING (dept_no) 
+		WHERE to_date > now()
+			AND gender = 'F');
+			
+-- 2. Find the first and last name of the employee with the highest salary
+SELECT first_name, last_name, salary
+FROM employees
+JOIN salaries
+	USING (emp_no)
+WHERE salary = (SELECT MAX(salary)
+				FROM salaries);
+
+-- 3. Find the department name that the employee with the highest salary works in.
+
+SELECT dept_name
+FROM departments
+JOIN dept_emp
+	USING (dept_no)
+WHERE emp_no = (SELECT emp_no
+				FROM employees
+				JOIN salaries
+					USING (emp_no)
+				WHERE salary = (SELECT MAX(salary)
+								FROM salaries));
