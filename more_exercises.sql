@@ -275,4 +275,126 @@ WHERE title LIKE 'Hunchback%'
 GROUP BY f.title;
 
 -- 13. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
+DESC language;
+SELECT * 
+FROM film 
+WHERE (title LIKE 'K%' 
+	OR title LIKE 'R%')
+	AND language_id IN
+			(SELECT language_id
+			FROM language 
+			WHERE name = 'english');
+
+-- 14. Use subqueries to display all actors who appear in the film Alone Trip.
+DESC actor;
+DESC film;
+DESC film_actor;
+
+SELECT film_id
+FROM film
+WHERE title = 'Alone Trip';
+
+SELECT actor_id
+FROM film_actor
+WHERE film_id = (SELECT film_id
+FROM film
+WHERE title = 'Alone Trip');
+
+SELECT first_name, last_name
+FROM actor
+WHERE actor_id IN (
+	SELECT actor_id
+	FROM film_actor
+	WHERE film_id = (
+		SELECT film_id
+		FROM film
+		WHERE title = 'Alone Trip'));
+		
+SELECT first_name, last_name
+FROM (
+	SELECT *
+	FROM film_actor
+	WHERE film_id = (
+		SELECT film_id
+		FROM film
+		WHERE title = 'Alone Trip')) as fa
+JOIN actor
+	USING (actor_id);
+	
+-- 15. You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers.
+DESC country;
+DESC city;
+DESC customer;
+DESC address;
+
+SELECT CONCAT(first_name, ' ', last_name) as name,
+	email
+FROM customer
+JOIN address
+	USING (address_id)
+JOIN city
+	USING (city_id)
+WHERE country_id = (SELECT `country_id`	
+					FROM country 
+						WHERE country = 'Canada');
+
+-- 16. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as famiy films.
+DESC film;
+DESC film_category;
+DESC category;
+
+SELECT title 
+FROM film 
+WHERE film_id IN 
+		(
+		SELECT film_id
+		FROM film_category
+		WHERE category_id = 
+				(
+				SELECT category_id
+				FROM category 
+				WHERE name = 'family'
+				)
+			)
+;
+
+-- 17. Write a query to display how much business, in dollars, each store brought in.
+SELECT total_sales
+FROM sales_by_store;
+
+-- 18. Write a query to display for each store its store ID, city, and country.
+DESC store;
+DESC address;
+DESC city;
+
+SELECT s.store_id, ct.city, country
+FROM store s
+JOIN address
+	USING (address_id)
+JOIN city ct
+	USING (city_id)
+JOIN country
+	USING (country_id);
+	
+-- 19. List the top five genres in gross revenue in descending order. (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+
+SELECT * FROM payment LIMIT 10; -- sum amount, join rental_id
+SELECT * FROM rental LIMIT 10; -- join inventory_id
+SELECT * FROM inventory LIMIT 10; -- JOIN FILM_ID
+SELECT * FROM film_category LIMIT 10; -- join category_id
+SELECT * FROM category;
+
+SELECT name, sum(amount)
+FROM category
+JOIN film_category
+	USING (category_id)
+JOIN inventory
+	USING (film_id)
+JOIN rental
+	USING (inventory_id)
+JOIN payment 
+	USING (rental_id)
+GROUP BY name
+ORDER BY sum(amount) DESC
+LIMIT 5;
 
