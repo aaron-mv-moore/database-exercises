@@ -398,3 +398,113 @@ GROUP BY name
 ORDER BY sum(amount) DESC
 LIMIT 5;
 
+-- More Exercises Part 3: 1 - 8 --
+-- 1. What is the average replacement cost of a film? Does this change depending on the rating of the film?
+SELECT AVG(replacement_cost)
+FROM film;
+
+SELECT rating, AVG(replacement_cost)
+FROM film
+GROUP BY rating;
+
+-- 2. How many different films of each genre are in the database?
+SELECT name, count(*)
+FROM category
+JOIN film_category
+	USING (category_id)
+GROUP BY name;
+
+-- 3. What are the 5 frequently rented films?
+select * from inventory;
+SELECT title, count(r.inventory_id)
+FROM rental r
+JOIN inventory
+	USING (inventory_id)
+JOIN film
+	USING (film_id)
+GROUP BY title
+ORDER BY count(*) DESC
+LIMIT 5;
+
+-- 4. What are the most most profitable films (in terms of gross revenue)?
+DESC payment; -- rental_id
+DESC rental; -- inventory_id
+
+SELECT title, SUM(amount)
+FROM film
+JOIN inventory
+	USING (film_id)
+JOIN rental
+	USING (inventory_id)
+JOIN payment
+	USING (rental_id)
+GROUP BY title
+ORDER BY SUM(amount) DESC
+LIMIT 5;
+
+-- 5. Who is the best customer?
+
+SELECT first_name, `last_name`
+FROM customer
+WHERE customer_id = 
+		(SELECT customer_id
+		FROM payment
+		GROUP BY `customer_id`
+		ORDER BY sum(amount) DESC
+		LIMIT 1) ;
+
+-- 6. Who are the most popular actors (that have appeared in the most films)?
+SELECT actor_id, count(*) 
+FROM film_actor
+GROUP BY `actor_id`
+ORDER BY count(*) DESC;
+
+SELECT first_name, last_name, cnt
+FROM actor
+JOIN 
+	(
+	SELECT actor_id, count(*) as cnt
+	FROM film_actor
+	GROUP BY `actor_id`
+	) 
+AS fa
+	USING (actor_id)
+ORDER BY cnt DESC;
+
+SELECT first_name, count(fa.actor_id) 
+FROM film_actor fa
+JOIN `actor`
+	USING(actor_id)
+GROUP BY actor_id
+ORDER BY count(fa.actor_id) DESC;
+
+-- 7. What are the sales for each store for each month in 2005?
+SELECT MONTH(payment_date), store_id, SUM(amount) 
+FROM payment
+JOIN rental
+	USING (rental_id)
+JOIN `inventory`
+	USING (inventory_id)
+WHERE YEAR(payment_date) = '2005'
+GROUP BY MONTH(payment_date), store_id
+ORDER BY MONTH(payment_date);
+
+-- 8. Bonus: Find the film title, customer name, customer phone number, and customer address for all the outstanding DVDs
+DESC customer;
+DESC address;
+SELECT title, CONCAT(last_name, ', ', first_name) as name, phone, address
+FROM 
+	(
+	SELECT title, customer_id 
+	FROM rental
+	JOIN inventory
+		USING (inventory_id)
+	JOIN film
+		USING (film_id) 
+	WHERE return_date IS NULL)
+AS rn
+JOIN customer
+	USING (customer_id)
+JOIN address
+	USING (address_id)
+ ;
