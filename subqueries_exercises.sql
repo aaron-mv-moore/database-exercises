@@ -24,14 +24,24 @@ JOIN titles
 	
 -- 3. How many people in the employees table are no longer working for the company? Give the answer in a comment in your code.
 	-- 85108
-
-SELECT COUNT(*)
+-- Does SQL automatically assume we want the latest date when we select 'distinct' or whne we opt to 'group by'??
+ SELECT COUNT(*)
 FROM (
 	SELECT DISTINCT employees.emp_no
 	FROM employees
 	JOIN dept_emp
 		USING (emp_no)
-	WHERE to_date < now()) as nh;
+	WHERE to_date < now()) as nh; 
+
+
+SELECT DISTINCT employees.emp_no, max(to_date)
+	FROM employees
+	JOIN dept_emp
+		USING (emp_no)
+	WHERE to_date < now()
+	GROUP BY employees.emp_no
+	ORDER BY MAX(to_date) DESC;
+	
 
 -- 4. Find all the current department managers that are female. List their names in a comment in your code.
 	 -- Isamu, Karsten, Leon, Hilary
@@ -62,7 +72,7 @@ SELECT STDDEV(salary)
 FROM salaries 
 WHERE to_date > now();
 
-SELECT count(*)
+/* SELECT count(*)
 FROM salaries
 WHERE salary BETWEEN (
 			(SELECT max(salary) 
@@ -81,7 +91,19 @@ WHERE salary BETWEEN (
 				(SELECT STDDEV(salary) 
 				FROM salaries 
 				WHERE to_date > now()
-				));
+				)); */
+-- Re-written becasue the highest salary has no other salaries above it making the between unneccesary.				
+SELECT count(*)
+FROM salaries
+WHERE salary > (
+			(SELECT max(salary) 
+				FROM salaries 
+				WHERE to_date > now()
+				) - 
+				(SELECT STDDEV(salary) 
+				FROM salaries 
+				WHERE to_date > now())
+					);
 
 --  What percentage of all salaries is this? 0.0077%
 SELECT (count(*) / 
