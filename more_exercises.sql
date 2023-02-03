@@ -629,3 +629,53 @@ SELECT
 FROM country
 GROUP BY continent;
 
+-- Part 5: Bonus exercises --
+
+-- 1. Find all the countries whose local name is different from the official name
+SELECT 
+	name
+	localname
+FROM country
+WHERE name != localname;
+
+-- 2. How many countries have a life expectancy less than Luxembourg?
+SELECT
+	count(*)
+FROM country
+WHERE lifeexpectancy < 
+	(
+	SELECT 
+		LifeExpectancy
+	FROM country
+	WHERE name = 'Luxembourg'
+	);
+	
+-- 3. What state is Votorantim located in?
+SELECT 
+	district
+FROM city
+WHERE name = 'Votorantim';
+
+-- 4. What region of the world is Votorantim located in?
+SELECT 
+	region
+FROM country
+	JOIN city
+		ON countrycode = code
+WHERE city.name = 'Votorantim';
+
+-- 5. What country (use the human readable name) city x located in?
+SELECT 
+	country.name
+FROM country
+	JOIN city
+		ON code = countrycode
+WHERE city.name = 'Votorantim';
+
+-- 6. What is the life expectancy in city x?
+SELECT 
+	lifeexpectancy
+FROM country
+	JOIN city
+		ON code = countrycode
+WHERE city.name = 'Votorantim';
