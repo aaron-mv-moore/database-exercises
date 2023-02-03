@@ -508,3 +508,124 @@ JOIN customer
 JOIN address
 	USING (address_id)
  ;
+
+-- More Exercises Part 4: Employees Database -- 
+-- 1. How much do the current managers of each department get paid, relative to the average salary for the department? Is there any department where the department manager gets paid less than the average salary?
+USE employees;
+
+-- Each manager's current salary
+SELECT emp_no, salary, dept_no
+FROM dept_manager dm
+JOIN salaries s
+	USING (emp_no)
+WHERE dm.to_date > now()
+	AND s.to_date > now();
+
+-- avg salary for each department
+SELECT dept_no, AVG(salary)
+FROM dept_emp de
+JOIN salaries s
+	ON de.emp_no = s.emp_no
+GROUP BY dept_no;
+
+-- Combining the two
+SELECT emp_no, salary, dept_no, da.avg
+FROM (
+		SELECT dept_no, AVG(salary) as avg
+		FROM dept_emp de
+		JOIN salaries s
+				ON de.emp_no = s.emp_no
+		WHERE s.to_date > now()
+		GROUP BY dept_no) as da -- dept avg sal
+JOIN dept_manager dm
+	USING (dept_no)
+JOIN salaries ss
+	USING (emp_no)
+WHERE dm.to_date > now()
+	AND ss.to_date > now();
+	
+-- FINDING WHO GETS PAID LESS THAN THE AVERAGE
+	-- Production, Research
+desc departments;
+
+
+SELECT dept_name, emp_no, salary - da.avg
+FROM departments
+JOIN (
+		SELECT dept_no, AVG(salary) as avg
+		FROM dept_emp de
+		JOIN salaries s
+				ON de.emp_no = s.emp_no
+		WHERE s.to_date > now()
+		GROUP BY dept_no) 
+		as da -- dept avg sal
+	USING (dept_no)
+JOIN dept_manager dm
+	USING (dept_no)
+JOIN salaries ss
+	USING (emp_no)
+WHERE dm.to_date > now()
+	AND ss.to_date > now();
+ 
+-- More Exercises Part 5: World Database --
+USE world;
+SHOW TABLES;
+DESC city;
+	SELECT * FROM city;
+DESC country;
+	SELECT * FROM country;
+DESC countrylanguage;
+	SELECT * FROM countrylanguage;
+	
+-- 1. What languages are spoken in Santa Monica?
+SELECT 
+	language, 
+	percentage
+FROM city 
+	JOIN countrylanguage
+		USING (countrycode)
+WHERE name LIKE '%Monica';
+
+-- 2. How many different countries are in each region?
+SELECT
+	Region, 
+	count(name) AS cnt
+FROM country
+GROUP BY region
+ORDER BY cnt;
+
+-- 3. What is the population for each region?
+SELECT
+	region,
+	SUM(population) AS pop
+FROM country
+GROUP BY region
+ORDER BY pop DESC;
+
+-- 4. What is the population for each continent?
+SELECT
+	Continent,
+	SUM(population) AS pop
+FROM country
+GROUP BY continent
+ORDER BY pop DESC;
+
+-- 5. What is the average life expectancy globally?
+SELECT 
+	AVG(`LifeExpectancy`)
+FROM country;
+
+-- 6. What is the average life expectancy for each region, each continent? Sort the results from shortest to longest
+SELECT 
+	region,
+	AVG(`LifeExpectancy`)
+FROM country
+GROUP BY region;
+
+
+SELECT 
+	continent,
+	AVG(`LifeExpectancy`)
+FROM country
+GROUP BY continent;
+
