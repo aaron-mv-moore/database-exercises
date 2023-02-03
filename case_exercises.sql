@@ -13,6 +13,8 @@ FROM dept_emp
 	JOIN employees
 		USING (emp_no);
 
+
+
 -- 2. Write a query that returns all employee names (previous and current), and a new column 'alpha_group' that returns 'A-H', 'I-Q', or 'R-Z' depending on the first letter of their last name.
 
 SELECT 
@@ -39,6 +41,17 @@ SELECT
 	END AS alpha_group
 FROM employees;
 
+-- Other option
+SELECT 
+	CONCAT(last_name, ', ', first_name) AS emp_name,
+	CASE
+		WHEN LEFT(last_name, 1) <= 'H' THEN 'A-H'
+		WHEN SUBSTR(last_name, 1, 1) <= 'Q' THEN 'I-Q'
+		WHEN SUBSTR(last_name, 1, 1) <= 'Z' THEN 'R-Z'
+	END AS alpha_group
+FROM employees;
+
+
 -- 3. How many employees (current or previous) were born in each decade?
 DESC employees;
 
@@ -53,6 +66,13 @@ SELECT
 	COUNT(*)
 FROM employees
 GROUP BY birth_decade;
+
+-- Beautfiul and succint!!!!!
+SELECT 
+	CONCAT(SUBSTR(birth_date, 1, 3), '0') as decade,
+	COUNT(*)
+FROM employees
+GROUP BY decade;
 
 -- 4. What is the current average salary for each of the following department groups: R&D, Sales & Marketing, Prod & QM, Finance & HR, Customer Service?
 
@@ -104,7 +124,7 @@ SELECT
 		WHEN dept_name IN ('finance', 'human resources') THEN 'Finance & HR'
 		ELSE 'Customer Service'
 	END AS dept_group,
-	AVG(salary)
+	AVG(salary) as avg_sal
 FROM departments
 	JOIN dept_emp AS de
 		USING (dept_no)
