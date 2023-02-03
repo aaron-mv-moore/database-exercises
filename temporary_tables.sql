@@ -108,6 +108,7 @@ FROM employees;
 		
 
 -- current average pay per department = X
+USE employees;
 SELECT 
 	dept_name,
 	AVG(salary)
@@ -132,7 +133,7 @@ SELECT
 FROM salaries
 WHERE to_date > now();
 	
--- CURRENT Z-SCORE FOR EACH DEPARTMENT
+-- CURRENT Z-SCORE FOR EACH DEPARTMENT FROM ORIGINAL DATABASE
 USE employees;
 SELECT 
 	dept_name,
