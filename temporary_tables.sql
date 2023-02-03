@@ -3,20 +3,20 @@ USE employees;
 -- Using the example from the lesson, create a temporary table called employees_with_departments that contains first_name, last_name, and dept_name for employees currently with that department. 
 
 CREATE TEMPORARY TABLE oneil_2092.employees AS
-SELECT 
-	first_name, 
-	last_name, 
-	dept_name
-FROM employees
-	JOIN dept_emp
-		USING (emp_no)
-	JOIN departments
-		USING (dept_no)
-WHERE dept_emp.to_date > now();
-
+	SELECT 
+		first_name, 
+		last_name, 
+		dept_name
+	FROM employees
+		JOIN dept_emp
+			USING (emp_no)
+		JOIN departments
+			USING (dept_no)
+	WHERE dept_emp.to_date > now();
 -- a. Add a column named full_name to this table. It should be a VARCHAR whose length is the sum of the lengths of the first name and last name columns.
 USE oneil_2092;
 DESC oneil_2092.employees;
+SELECT MAX(LENGTH(CONCAT(first_name, ' ', last_name))) FROM employees; -- EDIT: had 
 ALTER TABLE oneil_2092.employees ADD full_name VARCHAR(30);
 
 -- b. Update the table so that full name column contains the correct data.
@@ -26,6 +26,10 @@ SET full_name = CONCAT(first_name, ' ', last_name);
 -- .c Remove the first_name and last_name columns from the table.
 ALTER TABLE employees DROP COLUMN first_name;
 ALTER TABLE employees DROP COLUMN last_name;
+		-- Another way:
+ALTER TABLE employees
+	DROP COLUMN first_name,
+	DROP COLUMN last_name;
 
 -- d. What is another way you could have ended up with this same table?
 USE employees;
@@ -53,12 +57,17 @@ FROM payment;
 -- Write the SQL necessary to transform the amount column such that it is stored as an integer representing the number of cents of the payment. For example, 1.99 should become 199.
 USE oneil_2092;
 DESC payment;
-ALTER TABLE payment MODIFY amount DECIMAL(10,2);
+
+ALTER TABLE payment 
+	MODIFY amount DECIMAL(10,2);
 DESC payment;
+
 UPDATE payment
-SET amount = amount * 100;
-ALTER TABLE payment MODIFY amount INT(10);
+	SET amount = amount * 100;
+ALTER TABLE payment 
+	MODIFY amount INT(10);
 DESC payment;
+
 SELECT 
 	amount
 FROM payment;
