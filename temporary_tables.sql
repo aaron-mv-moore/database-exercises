@@ -67,6 +67,46 @@ FROM payment;
 
 -- The best department is sales and the worst seems to be human resources
 
+-- Create temp table with usable info
+USE employees;
+CREATE TEMPORARY TABLE oneil_2092.employees AS
+SELECT 
+	dept_name,
+	AVG(salary) AS davg,  --  THIS IS THE AVERAGE SALARY FOR EACH INDIVIDUAL DEPARTMENT, OUR X
+	(
+		SELECT 		-- THIS SALARY AVERAGE IS FOR ALL CURRENT SALARIES IN THE COMPANY
+		AVG(salary)
+		FROM salaries
+		WHERE to_date > now()
+	) AS cavg, 
+	(
+		SELECT 		-- THIS STDDEV IS FROM THE SAMPLE, THE ENTIRE COMPANY
+		STDDEV(salary)
+		FROM salaries
+		WHERE to_date > now()
+	) AS cstddev
+FROM departments
+	JOIN dept_emp de
+		USING (dept_no)
+	JOIN salaries s
+		USING (emp_no)
+WHERE s.to_date > now()
+	AND de.to_date > now()
+GROUP BY dept_name; 
+
+USE oneil_2092;
+SELECT * 
+FROM employees;
+
+ALTER TABLE employees ADD z_score DECIMAL(4,4); -- Z-SCORE TABLES USUALLY ONLY GO 4 DECIMAL POINTS
+
+UPDATE employees
+SET z_score = (davg - cavg) / cstddev ; -- USING THE INFORMATION IN THE TEMPORARY TABLE SO THE WORK IS DONE FOR ME 
+
+SELECT * 
+FROM employees;
+		
+
 -- current average pay per department = X
 SELECT 
 	dept_name,
@@ -83,7 +123,7 @@ GROUP BY dept_name;
 -- Current average of the company = 
 SELECT 
 	AVG(salary)
-FROMs alaries
+FROM salaries
 WHERE to_date > now();
 
 -- Standard deviation of enitre company
@@ -93,7 +133,7 @@ FROM salaries
 WHERE to_date > now();
 	
 -- CURRENT Z-SCORE FOR EACH DEPARTMENT
-
+USE employees;
 SELECT 
 	dept_name,
 		(
@@ -122,9 +162,3 @@ FROM departments
 WHERE s.to_date > now()
 	AND de.to_date > now()
 GROUP BY dept_name;
-
-
-
-USE employees;
-
-CREATE TEMPORARY TABLE oneil_2092.
