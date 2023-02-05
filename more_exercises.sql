@@ -742,16 +742,18 @@ FROM pizzas
 GROUP BY order_ID;
 
 	-- Finding the average of the pizzas per order using the above as a subquery
-SELECT AVG(cnt) avg_per_ord
+SELECT 
+	AVG(cnt) avg_per_ord
 FROM (SELECT 
-COUNT(pizza_id) AS cnt
+	COUNT(pizza_id) AS cnt
 FROM pizzas
 GROUP BY order_ID) AS ppo;
 
 -- 11. Find the total price for each order. 
 	-- A: 
-SELECT  order_id, 
-SUM(modifier_price) + SUM(size_price) + SUM(total_topping_price)
+SELECT  
+	order_id, 
+	SUM(modifier_price) + SUM(size_price) + SUM(total_topping_price)
 FROM pizzas
 	JOIN pizza_modifiers
 		USING (pizza_id)
@@ -774,5 +776,194 @@ FROM pizzas
 		USING (size_id)
 GROUP BY order_id
 LIMIT 1;
+
+-- More Exercises Part 7: Additional Questions --
+USE pizza;
+
+-- 1. What is the average price of pizzas that have no cheese?
+	-- A: $36.13
+	-- Find the price for each pizza with no cheese and use the created table as a subquery in the FROM clause to enable the average function to be able to pull the column/field/feature 'pizza_price'
+SELECT 
+	ROUND(AVG(pizza_price), 2) AS avg_no_cheese_price
+FROM 
+(
+	SELECT
+		pizza_id,
+		(SUM(modifier_price) + SUM(total_topping_price) + SUM(size_price)) AS pizza_price
+	FROM pizzas
+		JOIN pizza_modifiers
+			USING (pizza_id)
+		JOIN modifiers 
+			USING (modifier_id)
+		JOIN 
+			(
+				SELECT 
+					pizza_id,
+					CASE 
+						WHEN topping_amount = 'light' THEN topping_price * .5
+						WHEN topping_amount = 'regular' THEN topping_price * 1
+						WHEN topping_amount = 'extra' THEN topping_price *  1.5
+						WHEN topping_amount = 'double' THEN topping_price* 2
+						ELSE 'error'
+					END AS total_topping_price
+				FROM pizza_toppings
+					JOIN toppings
+						USING (topping_id)
+			) AS toppings_price
+			USING (pizza_id)
+		JOIN sizes
+			USING (size_id)
+	WHERE modifier_name = 'no cheese'
+	GROUP BY pizza_id
+) AS no_cheese_prices;
+	-- Created a sub query for the price of the toppings
+/* SELECT 
+	pizza_id,
+	CASE 
+		WHEN topping_amount = 'light' THEN topping_price * .5
+		WHEN topping_amount = 'regular' THEN topping_price * 1
+		WHEN topping_amount = 'extra' THEN topping_price *  1.5
+		WHEN topping_amount = 'DOUBLE' THEN topping_price* 2
+		ELSE 'error'
+	END AS total_topping_price
+FROM pizza_toppings
+	JOIN toppings
+		USING (topping_id); */
+-- 2. What is the most common size for pizzas that have extra cheese?
+	-- A: Medium
+	-- PLAN: First I will filter the results to only get pizzas with extra cheese, I will then use the count function with the results grouped by size, lastly I will either use the ORDER BY clause or the MAX function to identify the most common size for pizzas tht have extra cheese. JOINS: pizzas - pizza_modifiers - sizes
+
+SELECT 
+	size_name,
+	COUNT(*) AS cnt
+FROM pizzas
+	JOIN pizza_modifiers
+		USING (pizza_id)
+	JOIN sizes 
+		USING (size_id)
+WHERE modifier_id = 1
+GROUP BY size_name
+ORDER BY cnt DESC
+LIMIT 1;
+
+-- 3. What is the most common topping for pizzas that are well done?
+	-- A: Bacon is the most common. This makes sense becasue many people enjoy crisy bacon.
+	-- PLAN: join pizzas - pizza_modifiers -- pizza_toppings -- toppings. Use the WHERE clause to get only poizzas that are well done. Use the GROUP BY clause to aggregate information based on the topping_name. The SELECT statement will have each topping and counts for each toppings based off the data from the resulting query.
+SELECT 
+	topping_name,
+	count(*) AS cnt
+FROM pizzas
+	JOIN pizza_modifiers
+		USING (pizza_id)
+	JOIN pizza_toppings
+		USING (pizza_id)
+	JOIN toppings
+		USING (topping_id)
+WHERE modifier_id = 2 -- SELECT * FROM modifiers;
+GROUP BY topping_name
+ORDER BY cnt DESC;
+
+/* -- 4. How many pizzas are only cheese (i.e. have no toppings)?
+	-- A: The answer may be zero, but Im not sure
+SELECT 
+	topping_amount 
+FROM pizza_toppings 
+GROUP BY topping_amount;
+SELECT * FROM toppings;
+DESC pizza_toppings;
+	-- Plan: Pizzas with no pizza_id on the pizza_topping table AND that do not have the 'no cheese' modifier are the pizzas i'm looking for. I think in the WHERE statement I can filter to get exactly what I want
+
+SELECT 
+	COUNT(CASE WHEN p.pizza_id IN (pt.pizza_id) THEN TRUE ELSE NULL END) AS not_only_cheese,
+	COUNT(CASE WHEN p.pizza_id NOT IN (pt.pizza_id) THEN TRUE ELSE NULL END) AS only_cheese
+FROM pizzas p
+	JOIN pizza_toppings pt
+			USING (pizza_id)
+	JOIN pizza_modifiers
+		USING (pizza_id)
+WHERE modifier_id <> 3;
+SELECT * FROM modifiers;
+
+-- 5. How many orders consist of pizza(s) that are only cheese? What is the average price of these orders? The most common pizza size?
+	-- A: ASK FOR HELP */
+
+-- 6. How may large pizzas have olives on them?
+	-- A: 1,326 
+	-- Plan: Query for only large pizzas with olives using the where clause.
+SELECT * FROM toppings; -- topping_id 7 for ol;ives
+SELECT * FROM sizes; -- size_id 3 is for large pizzas
+SELECT
+	count(*)
+FROM pizzas
+	JOIN pizza_toppings
+		USING (pizza_id)
+WHERE size_id = 3
+	AND topping_id = 7;
+	
+-- 7. What is the average number of toppings per pizza?
+	-- A: 2.7 or 3 toppings if rounded
+	-- PLAN: Use a subquery in the FROM clause based on pizza_toppings. In the subquery use the GROUP BY clause to aggregate the data by pizza_id with a count of the amount of times the pizza_id appears on the pizza_toppings table. This will be labeled as topping_cnt. In the main query, the avg function will be used with topping_cnt as the argument.
+SELECT
+	AVG(topping_cnt)
+FROM 
+(
+	SELECT
+		pizza_id,
+		COUNT(*) AS topping_cnt
+	FROM pizza_toppings
+		JOIN pizzas
+			USING (pizza_id)
+	GROUP BY pizza_id
+	ORDER BY topping_cnt
+) AS tc;
+
+-- 8. What is the average number of pizzas per order?
+	-- A: 2
+SELECT 
+	AVG(pizza_cnt)
+FROM 
+(
+SELECT
+	order_id,
+	count(*) AS pizza_cnt
+FROM pizzas
+GROUP BY order_id
+) AS pc;
+
+-- 9. What is the average pizza price?
+	-- A: 37.47
+
+SELECT 
+	ROUND(AVG(pizza_price), 2) AS avg_price
+FROM 
+(
+	SELECT
+		pizza_id,
+		(SUM(modifier_price) + SUM(total_topping_price) + SUM(size_price)) AS pizza_price
+	FROM pizzas
+		JOIN pizza_modifiers
+			USING (pizza_id)
+		JOIN modifiers 
+			USING (modifier_id)
+		JOIN 
+			(
+				SELECT 
+					pizza_id,
+					CASE 
+						WHEN topping_amount = 'light' THEN topping_price * .5
+						WHEN topping_amount = 'regular' THEN topping_price * 1
+						WHEN topping_amount = 'extra' THEN topping_price *  1.5
+						WHEN topping_amount = 'double' THEN topping_price* 2
+						ELSE 'error'
+					END AS total_topping_price
+				FROM pizza_toppings
+					JOIN toppings
+						USING (topping_id)
+			) AS toppings_price
+			USING (pizza_id)
+		JOIN sizes
+			USING (size_id)
+	GROUP BY pizza_id
+) AS prices;
 
 
