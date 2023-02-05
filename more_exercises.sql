@@ -584,12 +584,12 @@ SELECT
 FROM city 
 	JOIN countrylanguage
 		USING (countrycode)
-WHERE name LIKE '%Monica';
+WHERE NAME LIKE '%Monica';
 
 -- 2. How many different countries are in each region?
 SELECT
 	Region, 
-	count(name) AS cnt
+	count(NAME) AS cnt
 FROM country
 GROUP BY region
 ORDER BY cnt;
@@ -633,10 +633,10 @@ GROUP BY continent;
 
 -- 1. Find all the countries whose local name is different from the official name
 SELECT 
-	name
+	NAME
 	localname
 FROM country
-WHERE name != localname;
+WHERE NAME != localname;
 
 -- 2. How many countries have a life expectancy less than Luxembourg?
 SELECT
@@ -647,21 +647,21 @@ WHERE lifeexpectancy <
 	SELECT 
 		LifeExpectancy
 	FROM country
-	WHERE name = 'Luxembourg'
+	WHERE NAME = 'Luxembourg'
 	);
 	
 -- 3. What state is Votorantim located in?
 SELECT 
 	district
 FROM city
-WHERE name = 'Votorantim';
+WHERE NAME = 'Votorantim';
 
 -- 4. What region of the world is Votorantim located in?
 SELECT 
 	region
 FROM country
 	JOIN city
-		ON countrycode = code
+		ON countrycode = CODE
 WHERE city.name = 'Votorantim';
 
 -- 5. What country (use the human readable name) city x located in?
@@ -669,7 +669,7 @@ SELECT
 	country.name
 FROM country
 	JOIN city
-		ON code = countrycode
+		ON CODE = countrycode
 WHERE city.name = 'Votorantim';
 
 -- 6. What is the life expectancy in city x?
@@ -677,5 +677,102 @@ SELECT
 	lifeexpectancy
 FROM country
 	JOIN city
-		ON code = countrycode
-WHERE city.name = 'Votorantim';
+		ON CODE = countrycode
+WHERE city.name = 'Votorantim'; 
+
+-- More Exercises Part 6: Advanced Pizza Database
+USE pizza;
+SHOW TABLES;
+-- 1. What information is stored in the toppings table? How does this table relate to the pizzas table?
+	-- A: The topping id, topping name, and topping price are all stored in this table. The toppings are paired with the pizzas using their 'id' on the pizza_toppings table;
+DESC toppings;
+DESC pizzas;
+DESC pizza_toppings;
+
+-- 2. What information is stored in the modifiers table? How does this table relate to the pizzas table?
+	-- A: The modifier id, modifier name (different things to change about a pizza), and the price of the modification is stored in the modofier table. The pizza_modifier table attaches these modifications and the prices of the modifications to the pizza id via their respective id's
+DESC modifiers;
+SELECT *
+FROM modifiers
+LIMIT 5;
+
+-- 3. How are the pizzas and sizes tables related?
+	-- A: The size id for each size is attached to the pizza table as a foreign key to connect the size name and size price to the pizza ordered.
+DESC pizzas;
+DESC sizes;
+
+-- 4. What other tables are in the database?
+	-- A: crust_types is the last table that I have not discussed in my previous answers.
+SHOW TABLES;
+
+-- 5. How many unique toppings are there?
+	-- A: 9
+SELECT COUNT(DISTINCT topping_name)
+FROM toppings;
+
+ --  6. How many unique orders are in this dataset?
+	-- A: 10000. I'm not sure of the author of this questions wants unique order id's or specifically unique order contents. If the author of this questions wanted unique order contents, the query will be more complex.
+SELECT COUNT(DISTINCT order_id)
+FROM pizzas;
+
+-- 7. Which size of pizza is sold the most?
+	-- A: Large is sold the most
+SELECT size_name, count(size_id) AS cnt
+FROM pizzas
+	JOIN sizes
+		USING(size_id)
+GROUP BY size_id
+ORDER BY cnt DESC;
+
+-- 8. How many pizzas have been sold in total?
+	-- A: 2001
+SELECT * /* COUNT(DISTINCT pizza_id) */
+FROM pizzas;
+
+-- 9. What is the most common size of pizza ordered?
+	-- I'm not sure how this is different from the questions from before so I'm skipping this one
+	
+-- 10. What is the average number of pizzas per order?
+	-- 2.0001
+
+	-- Number of pizas in each order
+SELECT 
+COUNT(pizza_id) AS cnt
+FROM pizzas
+GROUP BY order_ID;
+
+	-- Finding the average of the pizzas per order using the above as a subquery
+SELECT AVG(cnt) avg_per_ord
+FROM (SELECT 
+COUNT(pizza_id) AS cnt
+FROM pizzas
+GROUP BY order_ID) AS ppo;
+
+-- 11. Find the total price for each order. 
+	-- A: 
+SELECT  order_id, 
+SUM(modifier_price) + SUM(size_price) + SUM(total_topping_price)
+FROM pizzas
+	JOIN pizza_modifiers
+		USING (pizza_id)
+	JOIN modifiers
+		USING (modifier_id)
+	JOIN (
+			SELECT topping_id, pizza_id,
+			CASE
+				WHEN topping_amount = 'light' THEN topping_price * .5
+				WHEN topping_amount = 'extra' THEN topping_price * 1.5
+				WHEN topping_amount = 'double' THEN topping_price * 2
+				ELSE topping_price
+			END AS total_topping_price 
+			 FROM toppings
+			 	JOIN pizza_toppings
+			 		USING (topping_id)
+ 		) toppings_price
+		USING (pizza_id)
+	JOIN sizes
+		USING (size_id)
+GROUP BY order_id
+LIMIT 1;
+
+
