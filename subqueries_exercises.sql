@@ -103,15 +103,16 @@ WHERE salary > (
 				(SELECT STDDEV(salary) 
 				FROM salaries 
 				WHERE to_date > now())
-					);
+					)
+					AND to_date > now();
 
---  What percentage of all salaries is this? 0.0077%
+--  What percentage of all salaries is this? 0.0029%
 SELECT (count(*) / 
 				(SELECT COUNT(*) 
 					FROM salaries)
 					) * 100
 FROM salaries
-WHERE salary BETWEEN (
+WHERE (salary BETWEEN (
 			(SELECT max(salary) 
 				FROM salaries 
 				WHERE to_date > now()
@@ -128,7 +129,8 @@ WHERE salary BETWEEN (
 				(SELECT STDDEV(salary) 
 				FROM salaries 
 				WHERE to_date > now()
-				));
+				)))
+				AND to_date > now();
 
 
 
@@ -157,7 +159,8 @@ FROM employees
 JOIN salaries
 	USING (emp_no)
 WHERE salary = (SELECT MAX(salary)
-				FROM salaries);
+				FROM salaries 
+					WHERE to_date > now());
 
 -- 3. Find the department name that the employee with the highest salary works in.
 
