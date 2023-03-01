@@ -51,3 +51,19 @@ SELECT NAME, round(gdp/population, -3)
 FROM world
 WHERE gdp >= 1000000000000;
 
+-- SHOW the NAME AND capital WHERE the NAME AND the capital have the same number of characters.
+-- FOR Microsoft SQL SERVER the FUNCTION LENGTH IS LEN
+SELECT NAME, capital
+  FROM world
+ WHERE LEN(NAME) = LEN(capital);
+
+-- Show the name and the capital where the first letters of each match. Don't include countries where the name and the capital are the same word.
+SELECT NAME, capital
+FROM world
+WHERE LEFT(NAME, 1) = LEFT(capital, 1) AND NAME <> capital;
+
+-- Equatorial Guinea and Dominican Republic have all of the vowels (a e i o u) in the name. They don't count because they have more than one word in the name. Find the country that has all the vowels and no spaces in its name
+SELECT NAME
+   FROM world
+WHERE (NAME LIKE '%a%' AND NAME LIKE '%e%' AND NAME LIKE '%i%' AND NAME LIKE '%o%'  AND NAME LIKE '%u%')
+  AND NAME NOT LIKE '% %';
