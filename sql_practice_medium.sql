@@ -1,3 +1,5 @@
+-- SQL PRACTICE MEDIUM HOSPITAL DB
+
 -- Show unique birth years from patients and order them by ascending.
 SELECT
 	DISTINCT YEAR(birth_date) AS birth_year
@@ -257,3 +259,41 @@ SELECT
         ELSE gender
       END AS gender
 FROM patients;
+
+
+-- SQL PRACTICE MEDOOUM NORTHWIND DB
+
+-- Show the ProductName, CompanyName, CategoryName from the products, suppliers, and categories table
+SELECT
+  p.product_name,
+  s.company_name,
+  c.category_name
+FROM products p
+  JOIN suppliers s ON p.supplier_id = s.supplier_id
+  JOIN categories c ON p.category_id = c.category_id;
+
+-- Show the category_name and the average product unit price for each category rounded to 2 decimal places.
+SELECT
+  category_name,
+  Round(AVG(unit_price), 2) AS avg_unit_price
+FROM categories c 
+  JOIN products p ON c.category_id = p.category_id
+GROUP BY c.category_name;
+
+-- Show the city, company_name, contact_name from the customers and suppliers table merged together.
+-- CREATE a COLUMN which CONTAINS 'customers' OR 'suppliers' depending ON the TABLE it came from.
+
+SELECT
+  city,
+  company_name,
+  contact_name, 
+  'customers' table_origin
+FROM customers
+UNION
+SELECT
+  city,
+  company_name,
+  contact_name, 
+  'suppliers' table_origin
+FROM suppliers;
+
