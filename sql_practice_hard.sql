@@ -1,3 +1,5 @@
+-- SQL PRACTICE HARD HOSPITAL DB
+
 -- Show all of the patients grouped into weight groups. Show the total amount of patients in each weight group. Order the LIST BY the weight group decending.
 -- FOR example, IF they weight 100 TO 109 they are placed IN the 100 weight group, 110-119 = 110 weight group, etc.
 SELECT 
@@ -86,3 +88,60 @@ GROUP BY has_insurance;
 
 -- Show the provinces that has more patients identified as 'M' than 'F'. Must only show full province_name
 
+SELECT province_name
+FROM patients
+	JOIN province_names USING (province_id)
+GROUP BY province_name
+	HAVING count(CASE WHEN gender='M' THEN 1 END) > Count(CASE WHEN gender='F' THEN 1 END);
+
+-- We are looking for a specific patient. Pull all columns for the patient who matches the following criteria:
+-- First_name contains an 'r' after the first two letters.
+-- Identifies their gender AS 'F'
+-- Born IN February, May, OR December
+-- Their weight would be BETWEEN 60kg AND 80kg
+-- Their patient_id IS an odd number
+-- They are FROM the city 'Kingston'
+SELECT *
+FROM patients
+WHERE (first_name LIKE '__r%')
+	AND (gender = 'F')
+    AND (MONTH(birth_date) IN (2, 5, 12))
+    AND (weight BETWEEN 60 AND 80)
+    AND (patient_id % 2 != 0)
+    AND (city = 'Kingston');
+
+-- For each day display the total amount of admissions on that day. Display the amount changed from the previous date.
+SELECT 
+admission_date, count(admission_date), count(admission_date) - LAG(tm.cnt, 1) OVER() AS CHANGE
+FROM admissions
+JOIN (SELECT admission_date, count(admission_date) AS cnt FROM admissions GROUP BY admission_date) AS tm 
+USING (admission_date)
+GROUP BY admission_date;
+
+-- Sort the province names in ascending order in such a way that the province 'Ontario' is always on top.
+SELECT province_name
+FROM province_names
+GROUP BY province_name
+ORDER BY (CASE WHEN province_name = 'Ontario' THEN 0 ELSE 1 END), province_name
+;
+
+
+-- SQL PRACTICE HARD NORTHWIND DB
+
+-- Show the employee's first_name and last_name, a "num_orders" column with a count of the orders taken, and a column called "Shipped" that displays "On Time" if the order shipped on time and "Late" if the order shipped late. 
+-- ORDER BY employee last_name, THEN BY first_name, AND THEN descending BY number of orders.
+
+SELECT 
+  first_name,
+  last_name,
+  count(order_id) as num_orders,
+  CASE
+    WHEN shipped_date < required_date THEN 'On Time'
+    ELSE 'Late'
+    END as shipped
+FROM employees e 
+  JOIN orders o ON e.employee_id = o.employee_id
+GROUP BY
+  e.employee_id,
+  shipped
+ORDER BY last_name, first_name, num_orders DESC;
