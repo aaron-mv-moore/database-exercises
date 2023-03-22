@@ -297,3 +297,61 @@ SELECT
   'suppliers' table_origin
 FROM suppliers;
 
+
+-- Refresher work
+
+SELECT
+  first_name || ' ' || last_name,
+  ROUND(height/30.48,1),
+  ROUND(weight * 2.205, 0),
+  birth_date,
+  CASE 
+    WHEN gender = 'M' Then 'Male'
+    when gender = 'F' THEN 'Female' 
+  END AS gender
+FROM patients
+;
+
+
+SELECT
+  first_name,
+  last_name,
+  count(patient_id) as cnt
+FROM patients
+GROUP BY 
+  first_name, 
+  last_name
+having cnt > 1
+;
+
+SELECT
+  p.first_name || ' ' || p.last_name,
+  diagnosis,
+  d.first_name || ' ' || d.last_name
+FROM patients p 
+  INNER JOIN admissions a on p.patient_id = a.patient_id
+  INNER JOIN doctors d ON a.attending_doctor_id = d.doctor_id
+;
+
+SELECT
+  province_name,
+  Count(patient_id) as cnt
+FROM patients p 
+  INNER JOIN province_names pn ON p.province_id = pn.province_id
+GROUP BY province_name 
+ORDER BY cnt DESc
+
+;
+
+SELECT 
+  doctor_id,
+  Concat(
+    d.first_name,
+    ' ',
+    d.last_name) as full_name,
+  min(admission_date),
+  max(admission_date)
+FROM doctors d 
+  Inner Join admissions a ON d.doctor_id = a.attending_doctor_id
+GROUP BY d.doctor_id
+;
