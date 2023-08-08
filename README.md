@@ -1,1 +1,4 @@
-This repository is for completing exercises related to the SQL Module from Codeup Academy's Data Science course. If there are any questions or comments please le me know!
+# SQL Practice
+
+## Description
+This repository is for completing exercises with Structured Query Language (SQL), specifically using MySQL. Each file will contain SQL code from a variety of online sources. 
