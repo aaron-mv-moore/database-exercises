@@ -77,5 +77,121 @@ FROM station
 WHERE 
   LEFT(city, 1) IN ('a', 'e', 'i', 'o', 'u');
 
+/*
+Weather Observation Station 7
+Query the list of CITY names ending with vowels (a, e, i, o, u) from STATION. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  RIGHT(city, 1) in ('a','e','i','o','u');
+
+/*
+Weather Observation Station 8
+Query the list of CITY names from STATION which have vowels (i.e., a, e, i, o, and u) as both their first and last characters. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  RIGHT(city, 1) in ('a','e','i','o','u')
+  AND
+  LEFT(city, 1) in ('a','e','i','o','u');
+
+
+/*
+Weather Observation Station 9
+Query the list of CITY names from STATION that do not start with vowels. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  LEFT(city, 1) NOT IN('a','e','i','o','u');
+
+/*
+Weather Observation Station 10
+Query the list of CITY names from STATION that do not end with vowels. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  RIGHT(city, 1) NOT IN('a','e','i','o','u');
+
+
+/*
+Weather Observation Station 11
+Query the list of CITY names from STATION that either do not start with vowels or do not end with vowels. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  RIGHT(city, 1) NOT IN('a','e','i','o','u')
+  OR
+  LEFT(city, 1) NOT IN('a','e','i','o','u');
+
+/*
+Weather Observation Station 12
+Query the list of CITY names from STATION that do not start with vowels and do not end with vowels. Your result cannot contain duplicates.
+*/
+SELECT DISTINCT(city)
+FROM station
+WHERE 
+  RIGHT(city, 1) NOT IN('a','e','i','o','u')
+  AND
+  LEFT(city, 1) NOT IN('a','e','i','o','u');
+
+/*
+Higher Than 75 Marks
+Query the Name of any student in STUDENTS who scored higher than  75 Marks. Order your output by the last three characters of each name. If two or more students both have names ending in the same last three characters (i.e.: Bobby, Robby, etc.), secondary sort them by ascending ID.
+*/
+SELECT name
+FROM students
+WHERE marks > 75
+ORDER BY RIGHT(name, 3), id ASC; 
+
+/*
+Employee Names
+Write a query that prints a list of employee names (i.e.: the name attribute) from the Employee table in alphabetical order.
+*/
+SELECT name
+FROM employee
+ORDER BY name;
+
+/*
+Employee Salaries
+Write a query that prints a list of employee names (i.e.: the name attribute) for employees in Employee having a salary greater than $2000 per month who have been employees for less than 10 months. Sort your result by ascending employee_id.
+*/
+SELECT name
+FROM employee
+WHERE 
+  salary > 2000
+  AND
+  months < 10
+ORDER BY employee_id ASC;
+
+/*
+Type of Triangle
+Write a query identifying the type of each record in the TRIANGLES table using its three side lengths. Output one of the following statements for each record in the table:
+    Equilateral: It's a triangle with  sides of equal length.
+    Isosceles: It's a triangle with  sides of equal length.
+    Scalene: It's a triangle with  sides of differing lengths.
+    Not A Triangle: The given values of A, B, and C don't form a triangle.
+
+ORDER OF CASE WHEN MATTERS
+*/
+SELECT
+  CASE
+    WHEN (A+B<=C) OR (B+C<=A) OR (A+C<=B) THEN 'Not A Triangle'
+    WHEN (a = b) AND (a = c) THEN 'Equilateral'
+    WHEN (a = b) OR (a = c) OR (b = c) THEN 'Isosceles'
+    WHEN A!=B AND B!=C AND C!=A THEN 'Scalene'
+    ELSE 'ERROR'
+END as triangle_type
+FROM triangles;
+
+
+
+
+
+
 
 
