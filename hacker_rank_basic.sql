@@ -188,7 +188,82 @@ SELECT
 END as triangle_type
 FROM triangles;
 
+/*
+The PADS
+Generate the following two result sets:
+Query an alphabetically ordered list of all names in OCCUPATIONS, immediately followed by the first letter of each profession as a parenthetical (i.e.: enclosed in parentheses). For example: AnActorName(A), ADoctorName(D), AProfessorName(P), and ASingerName(S).
+Query the number of ocurrences of each occupation in OCCUPATIONS. Sort the occurrences in ascending order, and output them in the following format: 
+There are a total of [occupation_count] [occupation]s.
+where [occupation_count] is the number of occurrences of an occupation in OCCUPATIONS and [occupation] is the lowercase occupation name. If more than one Occupation has the same [occupation_count], they should be ordered alphabetically.
+Note: There will be at least two entries in the table for each type of occupation.
+*/
 
+SELECT 
+    CONCAT( 
+    name, '(' , LEFT(occupation, 1), ')'
+    )
+FROM occupations
+ORDER BY name;
+
+SELECT
+  CONCAT('There are a total of ', COUNT(occupation), ' ' , lower(occupation), 's.')
+FROM occupations
+GROUP BY occupation
+ORDER BY COUNT(occupation);
+
+/*
+Revising Aggregations - The Count Function
+Query a count of the number of cities in CITY having a Population larger than 100,000 .
+*/
+SELECT COUNT(name)
+FROM city
+WHERE population > 100000; 
+
+/*
+Revising Aggregations  - The Sum Function
+Query the total population of all cities in CITY where District is California.
+*/
+SELECT SUM(population)
+FROM city
+WHERE district = 'California'; 
+
+/*
+Revising Aggregations  -  Averages
+Query the average population of all cities in CITY where District is California.
+*/
+SELECT AVG(population)
+FROM city
+WHERE district = 'California';
+
+/*
+Average Population
+Query the average population for all cities in CITY, rounded down to the nearest integer.
+*/
+SELECT FLOOR(AVG(population))
+FROM city;
+
+/*
+Japan Population
+Query the sum of the populations for all Japanese cities in CITY. The COUNTRYCODE for Japan is JPN.
+*/
+SELECT SUM(population)
+FROM city
+WHERE countrycode = 'JPN';
+
+/*
+Population Density Difference
+Query the difference between the maximum and minimum populations in CITY.
+*/
+SELECT MAX(population) - MIN(population)
+FROM city;
+
+/*
+The Blunder - Not a fun question
+Samantha was tasked with calculating the average monthly salaries for all employees in the EMPLOYEES table, but did not realize her keyboard's 0 key was broken until after completing the calculation. She wants your help finding the difference between her miscalculation (using salaries with any zeros removed), and the actual average salary.
+Write a query calculating the amount of error (i.e.:  actual - miscalculated average monthly salaries), and round it up to the next integer.
+*/
+SELECT CEIL(AVG(salary) - AVG(REPLACE(salary, '0', '')))
+FROM employees;
 
 
 
