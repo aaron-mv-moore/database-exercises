@@ -339,6 +339,71 @@ WHERE lat_n  > 38.7880
 ORDER BY lat_n
 LIMIT 1; 
 
+/*
+Weather Observation Station 18
+Consider P1(a,b) and P2(c,d) to be two points on a 2D plane.
+ a happens to equal the minimum value in Northern Latitude (LAT_N in STATION).
+ b happens to equal the minimum value in Western Longitude (LONG_W in STATION).
+ c happens to equal the maximum value in Northern Latitude (LAT_N in STATION).
+ d happens to equal the maximum value in Western Longitude (LONG_W in STATION).
+Query the Manhattan Distance (|x1 - x2| + |y1 - y2|) between points P1 and P2 and round it to a scale of 4 decimal places.
+*/
+SELECT 
+    ROUND(ABS(MIN(lat_n) - MAX(lat_n)) 
+    +
+    ABS(MIN(long_w)- MAX(long_w)), 4)
+FROM station;
+
+/*
+Weather Observation Station 19
+Consider P1(a,c) and P2(b,d) to be two points on a 2D plane where (a,b) are the respective minimum and maximum values of Northern Latitude (LAT_N) and (c,d) are the respective minimum and maximum values of Western Longitude (LONG_W) in STATION.
+Query the Euclidean Distance between points P1 and P2 and format your answer to display 4 decimal digits.
+*/
+SELECT
+  ROUND(
+      SQRT(
+          POWER(MIN(lat_n) - MAX(lat_n), 2) 
+      +
+          POWER(MIN(long_w) - MAX(long_w), 2)
+      )
+      , 4)
+FROM station;
+
+/*
+Population Census
+Given the CITY and COUNTRY tables, query the sum of the populations of all cities where the CONTINENT is 'Asia'.
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+SELECT
+ SUM(city.population)
+FROM city 
+  JOIN country on city.countrycode = country.code
+WHERE continent = 'Asia';
+
+/*
+African Cities
+Given the CITY and COUNTRY tables, query the names of all cities where the CONTINENT is 'Africa'.
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+SELECT
+ city.name
+FROM city 
+  JOIN country on city.countrycode = country.code
+WHERE continent = 'Africa';
+
+/*
+Given the CITY and COUNTRY tables, query the names of all the continents (COUNTRY.Continent) and their respective average city populations (CITY.Population) rounded down to the nearest integer.
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+SELECT
+ continent, 
+ FLOOR(AVG(city.population))
+FROM city 
+  JOIN country on city.countrycode = country.code
+GROUP BY continent;
+
+
+
 
 
 
