@@ -104,3 +104,47 @@ FROM employee a
   LEFT JOIN company b ON a.company_code = b.company_code
 GROUP BY b.company_code, b.founder
 ORDER BY b.company_code ASC;
+
+/*
+Weather Observation Station 20
+A median is defined as a number separating the higher half of a data set from the lower half. Query the median of the Northern Latitudes (LAT_N) from STATION and round your answer to 4 decimal places.
+*/
+-- setting row number
+SET @row_number = -1;
+-- get lat_n ordered
+WITH cte1 AS(
+    SELECT 
+      (@row_number := @row_number + 1) as num,
+      lat_n
+    FROM station
+    ORDER BY lat_n)
+
+-- checking the number of rows
+-- SELECT CASE
+--     WHEN MAX(num) % 2 = 1 THEN 'odd'
+--     WHEN MAX(num) % 2 = 0 THEN 'even'
+--     END AS odd_even
+-- FROM cte1
+
+SELECT ROUND(AVG(lat_n), 4)
+FROM cte1
+WHERE num IN (CEIL(@row_number/2), FLOOR(@row_number/2)) ;
+
+/*
+The Report
+You are given two tables: Students and Grades. Students contains three columns ID, Name and Marks.
+Grades contains the following data: grade,min_mark, max_mark
+Ketty gives Eve a task to generate a report containing three columns: Name, Grade and Mark. Ketty doesn't want the NAMES of those students who received a grade lower than 8. The report must be in descending order by grade -- i.e. higher grades are entered first. If there is more than one student with the same grade (8-10) assigned to them, order those particular students by their name alphabetically. Finally, if the grade is lower than 8, use "NULL" as their name and list them by their grades in descending order. If there is more than one student with the same grade (1-7) assigned to them, order those particular students by their marks in ascending order.
+Write a query to help Eve.
+*/
+
+SELECT
+  IF(b.grade >= 8, a.name, NULL) as name,
+  b.grade,
+  a.marks
+FROM students a
+JOIN grades b ON a.marks >= b.min_mark
+  AND a.marks <= b.max_mark
+ORDER BY b.grade DESC, a.name ASC, a.marks ASC
+;
+
