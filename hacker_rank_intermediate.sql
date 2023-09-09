@@ -148,3 +148,176 @@ JOIN grades b ON a.marks >= b.min_mark
 ORDER BY b.grade DESC, a.name ASC, a.marks ASC
 ;
 
+/*
+Top Competitors
+Julia just finished conducting a coding contest, and she needs your help assembling the leaderboard! Write a query to print the respective hacker_id and name of hackers who achieved full scores for more than one challenge. Order your output in descending order by the total number of challenges in which the hacker earned a full score. If more than one hacker received full scores in same number of challenges, then sort them by ascending hacker_id.
+*/
+
+SELECT 
+  a.hacker_id,
+  MAX(d.name)
+FROM submissions a
+JOIN challenges b ON a.challenge_id = b.challenge_id
+JOIN difficulty c ON b.difficulty_level = c.difficulty_level
+  AND a.score = c.score
+JOIN hackers d ON a.hacker_id = d.hacker_id
+GROUP BY a.hacker_id
+  HAVING COUNT(a.submission_id) > 1
+ORDER BY COUNT(a.submission_id) DESC, a.hacker_id ASC;
+
+/*
+Challenges
+Julia asked her students to create some coding challenges. Write a query to print the hacker_id, name, and the total number of challenges created by each student. Sort your results by the total number of challenges in descending order. If more than one student created the same number of challenges, then sort the result by hacker_id. If more than one student created the same number of challenges and the count is less than the maximum number of challenges created, then exclude those students from the result.
+-- */
+-- Conditions for inclusion
+-- - is the maximum/highest challenge_count 
+-- with cte1 as (SELECT hacker_id,
+--   COUNT(challenge_id) as challenge_count
+-- FROM challenges 
+-- GROUP BY hacker_id)
+
+-- SELECT  
+--   hacker_id,
+--   challenge_count
+-- FROM cte1
+-- WHERE challenge_count = (SELECT MAX(challenge_count)
+-- FROM cte1);
+
+-- - there is only one challenge count
+-- with cte1 as (SELECT hacker_id,
+--   COUNT(challenge_id) as challenge_count
+-- FROM challenges 
+-- GROUP BY hacker_id)
+
+-- SELECT
+--   challenge_count
+-- FROM cte1
+-- GROUP BY challenge_count
+--     HAVING COUNT(hacker_id) = 1;
+    
+-- combine
+
+with cte1 as (SELECT hacker_id,
+  COUNT(challenge_id) as challenge_count
+FROM challenges 
+GROUP BY hacker_id)
+
+SELECT  
+  cte1.hacker_id,
+  b.name,
+  challenge_count
+FROM cte1
+JOIN hackers b on cte1.hacker_id = b.hacker_id
+WHERE challenge_count = (SELECT MAX(challenge_count)
+FROM cte1) 
+  OR challenge_count IN (SELECT
+  challenge_count
+FROM cte1
+GROUP BY challenge_count
+    HAVING COUNT(hacker_id) = 1)
+ORDER BY challenge_count DESC, hacker_id ASC;
+/*
+Contest Leaderboard
+You did such a great job helping Julia with her last coding contest challenge that she wants you to work on this one, too!
+The total score of a hacker is the sum of their maximum scores for all of the challenges. Write a query to print the hacker_id, name, and total score of the hackers ordered by the descending score. If more than one hacker achieved the same total score, then sort the result by ascending hacker_id. Exclude all hackers with a total score of 0 from your result.
+*/
+
+SELECT 
+  t1.hacker_id,
+  MAX(t2.name),
+  SUM(max_challenge_score) as total_score
+FROM 
+    (SELECT
+      hacker_id,
+      challenge_id,
+      MAX(score) as max_challenge_score
+    FROM submissions
+    WHERE score > 0
+    GROUP BY hacker_id, challenge_id) t1
+JOIN hackers t2 ON t1.hacker_id = t2.hacker_id
+GROUP BY t1.hacker_id
+ORDER BY total_score DESC, hacker_id ASC;
+
+
+/*
+SQL Project Planning
+You are given a table, Projects, containing three columns: Task_ID, Start_Date and End_Date. It is guaranteed that the difference between the End_Date and the Start_Date is equal to 1 day for each row in the table.
+
+If the End_Date of the tasks are consecutive, then they are part of the same project. Samantha is interested in finding the total number of different projects completed.
+
+Write a query to output the start and end dates of projects listed by the number of days it took to complete the project in ascending order. If there is more than one project that have the same number of completion days, then order by the start date of the project.
+
+Steps
+    a. create a table with a project id attached to each task
+        1. order by end date
+        2. Take the difference of the date of interest with the date in front or behind it
+        3. each time that does not equal 1, the counter goes up one
+    b. group by project id 
+    c. select the min date for the start_date
+    d. select the max date for the end date
+    e. find the difference for the two values (min start and max end)
+    f. order the results
+*/
+SET @project_counter = 0;
+
+WITH cte1 AS(
+    SELECT
+      task_id,
+      start_date, '|',
+      LAG(end_date, 1) OVER (ORDER BY end_date) as previous_date,
+      end_date, '|' b,
+      (start_date <> LAG(end_date, 1) OVER (ORDER BY end_date)) as is_new_project
+    FROM projects), 
+
+cte2 AS(
+    SELECT 
+      task_id,
+      start_date,
+      previous_date,
+      end_date,
+      is_new_project,
+      CASE
+        WHEN is_new_project = 1 THEN  (@project_counter :=  @project_counter + 1 )
+        ELSE  @project_counter
+      END project_id
+    FROM cte1)
+    
+SELECT 
+    MIN(start_date) project_start_date,
+    MAX(end_date)
+FROM cte2
+GROUP BY project_id
+ORDER BY DATEDIFF(MAX(end_date), MIN(start_date)) ASC, project_start_date ASC
+;
+
+/*
+Placements
+You are given three tables: Students, Friends and Packages. Students contains two columns: ID and Name. Friends contains two columns: ID and Friend_ID (ID of the ONLY best friend). Packages contains two columns: ID and Salary (offered salary in $ thousands per month).
+
+Write a query to output the names of those students whose best friends got offered a higher salary than them. Names must be ordered by the salary amount offered to the best friends. It is guaranteed that no two students got same salary offer.
+
+names of people who's best frineds fgot more than them
+
+What we need to succeed:
+    1. A column with the students of focus salaries
+    1. a column with the salaries of the firend
+    1. a column that is true or false is_friend_salary_larger (friend_salary > student_salary)
+    1. if is_friend_salary_larger = 1, include the student name
+*/
+WITH cte1 AS (SELECT
+    b.id,
+    b.salary student_salary,
+    c.salary friend_salary,
+    c.salary > b.salary is_friend_salary_larger,
+    d.name student_name
+FROM friends a
+JOIN packages b on a.id = b.id
+JOIN packages c on a.friend_id = c.id
+JOIN students d ON a.id = d.id
+ORDER BY friend_salary)
+
+SELECT
+  student_name
+FROM cte1
+WHERE is_friend_salary_larger = 1;
+
