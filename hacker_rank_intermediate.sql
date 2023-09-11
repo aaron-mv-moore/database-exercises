@@ -321,3 +321,22 @@ SELECT
 FROM cte1
 WHERE is_friend_salary_larger = 1;
 
+/*
+Symmetric Pairs
+You are given a table, Functions, containing two columns: X and Y.
+Two pairs (X1, Y1) and (X2, Y2) are said to be symmetric pairs if X1 = Y2 and X2 = Y1.
+Write a query to output all such symmetric pairs in ascending order by the value of X. List the rows such that X1 <= Y1.
+*/
+WITH cte1 AS(SELECT *,
+            ROW_NUMBER() OVER (ORDER BY X) as row_num 
+            FROM functions)
+
+SELECT t1.x, t1.y
+FROM cte1 t1
+CROSS JOIN cte1 t2 -- get cartesian product (all combinations) 
+WHERE t1.row_num <> t2.row_num -- No matching with itself for doubles (10, 10)
+  AND t1.x = t2.y 
+  AND t1.y = t2.x 
+  AND t1.x <= t1.y    
+GROUP BY t1.x, t1.y -- reduce duplicates
+ORDER BY t1.x;
